@@ -30,7 +30,7 @@ class TaskService:
         
         print(first_text)
         
-        position = best_position_respond(db,first_text)
+        position = best_position_respond(db,first_text,task_description)
         
         return position
         # return first_text
@@ -74,24 +74,26 @@ class TaskService:
         best_position = response.choices[0].message.content
 
         # Validate the best position is in the list
-        position = best_position_respond(db,best_position)
+        position = best_position_respond(db,best_position,task_description)
         
         return position
 
         # return {"position": "Not found", "room_id": None, "prompt": prompt}  # Return default response and log the prompt used
     
     
-def best_position_respond(db: Session,position:str):
+def best_position_respond(db: Session,position:str,query:str) -> dict:
     all_positions = db.query(Task.position).all()
     positions_list = [position[0] for position in all_positions] 
     
     if position in positions_list:
             best_task = db.query(Task).filter(Task.position == position).first()
+            answer = f"Your query '{query}' will be answered by role '{best_task.position}' and its room id '{best_task.room_id}'"
             if best_task:
-                return {"position": best_task.position, "room_id": best_task.room_id}
-            else:
-                print(f"Best position not found in database: {position}")  # Log if position is not found in DB
-                return {"position": None, "room_id": None}
+                return {"position": best_task.position, "room_id": best_task.room_id,"answer":answer}
+    else:
+        print(f"Best position not found in database: {position}")  # Log if position is not found in DB
+        answer = f"Your query '{query}' will be answered by role '{position}' and it haven't any room id"
+        return {"position": None, "room_id": None,"answer":answer}
     
     
     

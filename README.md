@@ -52,10 +52,14 @@ fastapi_project/
         uvicorn app.main:app --reload
     ```
 
-
-.env file
-```bash
-    OPENAI_API_KEY=your-openai-api-key
+Eg. response
+```
+    {
+    "position": {
+        "position": "Web Developer",
+        "room_id": 437
+    }
+    }
 ```
 
 ## Files Information

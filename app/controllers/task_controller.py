@@ -23,7 +23,7 @@ def get_db():
         db.close()
 
 @router.post("/extension/")
-def get_position_via_extension(task_description: str):
+def get_position_via_extension(task_description: str,db: Session = Depends(get_db)):
     """
     Handles a POST request to retrieve the best position for a given task description via an external service.
 
@@ -33,7 +33,7 @@ def get_position_via_extension(task_description: str):
     Returns:
         dict: A dictionary containing the best position for the task.
     """
-    best_position = TaskService.get_best_position_from_extension(task_description)
+    best_position = TaskService.get_best_position_from_extension(task_description,db)
     return {"position": best_position}
 
 @router.post("/database/")

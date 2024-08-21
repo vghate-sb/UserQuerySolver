@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 class TaskService:
     @staticmethod
-    def get_best_position_from_extension(task_description: str) -> str:
+    def get_best_position_from_extension(task_description: str,db: Session) -> str:
         Assistant_ID = os.getenv('ASSISTANT_ID')
         client = openai.OpenAI()
         chat = client.beta.threads.create(
@@ -27,7 +27,15 @@ class TaskService:
 
         first_message = message.data[0]
         first_text = first_message.content[0].text.value
-        return first_text
+        
+        print(first_text)
+        
+        position = best_position_respond(db,first_text)
+        
+        return position
+        # return first_text
+    
+    
 
     @staticmethod
     def get_best_position_from_db(db: Session, task_description: str) -> dict:
@@ -50,7 +58,7 @@ class TaskService:
         prompt = (
             f"Given the task description: '{task_description}', "
             "choose the most suitable job position from the following list:\n"
-            f"{', '.join(positions_list)}."
+            f"{', '.join(positions_list)}. \nJust give the job position only, no self metion or any other message"
         )
         
         response = openai.OpenAI().chat.completions.create(
@@ -66,14 +74,24 @@ class TaskService:
         best_position = response.choices[0].message.content
 
         # Validate the best position is in the list
-        if best_position in positions_list:
-            # Retrieve the room_id for the best position
-            best_task = db.query(Task).filter(Task.position == best_position).first()
+        position = best_position_respond(db,best_position)
+        
+        return position
+
+        # return {"position": "Not found", "room_id": None, "prompt": prompt}  # Return default response and log the prompt used
+    
+    
+def best_position_respond(db: Session,position:str):
+    all_positions = db.query(Task.position).all()
+    positions_list = [position[0] for position in all_positions] 
+    
+    if position in positions_list:
+            best_task = db.query(Task).filter(Task.position == position).first()
             if best_task:
                 return {"position": best_task.position, "room_id": best_task.room_id}
             else:
-                print(f"Best position not found in database: {best_position}")  # Log if position is not found in DB
-
-        return {"position": "Not found", "room_id": None, "prompt": prompt}  # Return default response and log the prompt used
+                print(f"Best position not found in database: {position}")  # Log if position is not found in DB
+                return {"position": None, "room_id": None}
+    
     
     

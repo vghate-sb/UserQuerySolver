@@ -62,6 +62,7 @@ class TaskService:
             max_tokens=50,
             temperature=0.5
         )
+        
         best_position = response.choices[0].message.content
 
         # Validate the best position is in the list

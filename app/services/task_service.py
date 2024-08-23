@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.task_model import Task
 import openai
-import time,os, json
+import time,os, json,re
 from dotenv import load_dotenv
 from typing import Union
 
@@ -29,7 +29,7 @@ class TaskService:
         print(message)
 
         first_message = message.data[0]
-        first_text = first_message.content[0].text.value
+        first_text = json.loads(backtick_filter(first_message.content[0].text.value))
         
         print(first_text)
         
@@ -131,6 +131,11 @@ def best_position_respond(db: Session, position_or_json: Union[str, dict], query
         answer = f"Your query '{query}' will be answered by role '{position}' and it doesn't have any room id"
         return {"position": None, "room_id": None, "answer": answer}
 
+
+def backtick_filter(data):
+    pattern = r'{.*\}'
+    match = re.search(pattern, data)
+    return match.group()
 # def best_position_respond(db: Session,position:str,query:str) -> dict:
 #     all_positions = db.query(Task.position).all()
 #     positions_list = [position[0] for position in all_positions] 

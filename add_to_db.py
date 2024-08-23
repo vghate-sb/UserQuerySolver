@@ -48,9 +48,7 @@ def add_task(position: str, room_id: int):
 if __name__ == "__main__":
     # Example data to add
     positions = [
-        {"position": "Aeronautical Engineer", "room_id": 101},
-        {"position": "Software Engineer", "room_id": 102},
-        {"position": "Mechanical Engineer", "room_id": 103}
+        {"position": "FQuality Assurance Engineer", "room_id": 1202},
     ]
 
     for pos in positions:
